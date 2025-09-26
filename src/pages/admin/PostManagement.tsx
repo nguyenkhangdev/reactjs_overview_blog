@@ -9,58 +9,26 @@ import {
   Popconfirm,
   message,
 } from "antd";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  createPost,
-  deletePost,
-  getPosts,
-  updatePost,
-} from "../../api/postApi";
 import type { PostType } from "../../types/post.types";
+import {
+  usePosts,
+  useCreatePost,
+  useUpdatePost,
+  useDeletePost,
+} from "../../hooks/usePosts";
 
 export default function PostManagement() {
-  const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<PostType | null>(null);
   const [form] = Form.useForm();
 
-  // GET posts
-  const { data: posts, isLoading } = useQuery({
-    queryKey: ["posts"],
-    queryFn: getPosts,
-  });
+  // Hooks
+  const { data: posts, isLoading } = usePosts();
+  const createMutation = useCreatePost();
+  const updateMutation = useUpdatePost();
+  const deleteMutation = useDeletePost();
 
-  // CREATE
-  const createMutation = useMutation({
-    mutationFn: createPost,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["posts"] });
-      message.success("Post created successfully");
-    },
-  });
-
-  // UPDATE
-const updateMutation = useMutation({
-  mutationFn: (data: PostType) => {
-    const { id, ...rest } = data;  // bỏ id khỏi body
-    return updatePost(id, rest);
-  },
-  onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ["posts"] });
-    message.success("Post updated successfully");
-  },
-});
-
-  // DELETE
-  const deleteMutation = useMutation({
-    mutationFn: deletePost,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["posts"] });
-      message.success("Post deleted successfully");
-    },
-  });
-
-  // Handle open modal
+  // Open modal
   const openModal = (post?: PostType) => {
     if (post) {
       setEditingPost(post);
@@ -72,28 +40,46 @@ const updateMutation = useMutation({
     setIsModalOpen(true);
   };
 
-  // Handle form submit
+  // Handle submit
   const handleOk = async () => {
     try {
       const values = await form.validateFields();
       if (editingPost) {
-        updateMutation.mutate({ ...editingPost, ...values });
+        updateMutation.mutate(
+          { ...editingPost, ...values },
+          {
+            onSuccess: () => {
+              message.success("Post updated successfully");
+              setIsModalOpen(false);
+              form.resetFields();
+            },
+          }
+        );
       } else {
-        createMutation.mutate(values);
+        createMutation.mutate(values, {
+          onSuccess: () => {
+            message.success("Post created successfully");
+            setIsModalOpen(false);
+            form.resetFields();
+          },
+        });
       }
-      setIsModalOpen(false);
     } catch (error) {
       console.error(error);
     }
   };
 
   const handleDelete = (id: number) => {
-    deleteMutation.mutate(id);
+    deleteMutation.mutate(id, {
+      onSuccess: () => message.success("Post deleted successfully"),
+    });
   };
 
+  // Table columns
   const columns = [
     { title: "ID", dataIndex: "id" },
     { title: "Title", dataIndex: "title" },
+    { title: "Content", dataIndex: "content", ellipsis: true },
     {
       title: "Actions",
       render: (_: any, record: PostType) => (
@@ -120,14 +106,16 @@ const updateMutation = useMutation({
       >
         Add Post
       </Button>
+
       <Table
         dataSource={posts}
         columns={columns}
         rowKey="id"
         loading={isLoading}
+        pagination={{ pageSize: 5 }}
       />
 
-      {/* Modal form */}
+      {/* Modal Form */}
       <Modal
         title={editingPost ? "Edit Post" : "Add Post"}
         open={isModalOpen}
