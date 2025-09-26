@@ -1,16 +1,12 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useRecoilValue } from "recoil";
-import { authUserState } from "../store/authAtom";
+import { isAdminSelector } from "../store/authAtom";
 
 export default function AdminRoute() {
-  const user = useRecoilValue(authUserState);
+  const isAdmin = useRecoilValue(isAdminSelector);
 
-  if (!user) {
+  if (!isAdmin) {
     return <Navigate to="/signin" replace />;
-  }
-
-  if (user.role !== "admin") {
-    return <Navigate to="/" replace />;
   }
 
   return <Outlet />;
