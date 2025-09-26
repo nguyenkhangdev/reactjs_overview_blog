@@ -5,21 +5,30 @@ import Home from "./pages/Home";
 import PostDetail from "./pages/PostDetail";
 import PostManagement from "./pages/admin/PostManagement";
 import Dashboard from "./pages/admin/Dashboard";
+import SignIn from "./pages/SignIn";
+import useAuthInit from "./hooks/useAuthInit";
+import AdminRoute from "./components/AdminRoute";
 
-const AppRouter = () => (
-  <Routes>
-    {/* Public routes */}
-    <Route element={<PublicLayout />}>
-      <Route path="/" element={<Home />} />
-      <Route path="/post/:id" element={<PostDetail />} />
-    </Route>
+export default function AppRouter() {
+  useAuthInit();
 
-    {/* Admin routes */}
-    <Route element={<AdminLayout />}>
-      <Route path="/admin" element={<Dashboard />} />
-      <Route path="/admin/posts" element={<PostManagement />} />
-    </Route>
-  </Routes>
-);
+  return (
+    <Routes>
+      {/* Public routes */}
+      <Route element={<PublicLayout />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/post/:id" element={<PostDetail />} />
 
-export default AppRouter;
+        <Route path="/signin" element={<SignIn />} />
+      </Route>
+
+      {/* Admin routes */}
+      <Route element={<AdminRoute />}>
+        <Route element={<AdminLayout />}>
+          <Route path="/admin" element={<Dashboard />} />
+          <Route path="/admin/posts" element={<PostManagement />} />
+        </Route>
+      </Route>
+    </Routes>
+  );
+}

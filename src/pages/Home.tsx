@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import type { Post } from "../types/post.types";
+import type { PostType } from "../types/post.types";
 import { getPosts } from "../api/postApi";
 import { Card, List } from "antd";
 import { Link } from "react-router-dom";
 
 export default function Home() {
-  const { data, isLoading, isError } = useQuery<Post[]>({
+  const { data, isLoading, isError } = useQuery<PostType[]>({
     queryKey: ["posts"],
     queryFn: getPosts,
   });
