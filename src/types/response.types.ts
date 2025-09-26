@@ -1,5 +1,5 @@
-export interface ResponseType {
+export interface ResponseType<T = any> {
   success: boolean;
   message: string;
-  data: string;
+  data: T;
 }
