@@ -12,3 +12,7 @@ This stack allows building a blog-style application with:
 - Authentication (Sign in, Sign up,role). 
 - Posts CRUD with React Query.
 - Responsive UI using Ant Design.
+
+### Research
+
+https://docs.google.com/document/d/1uKNSU7BlnrqjkOviHHsjCoqfAvGWnfdzdLnR5k__u_8/edit?usp=sharing
