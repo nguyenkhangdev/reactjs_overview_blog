@@ -14,21 +14,21 @@ export default function SignIn() {
 
   const mutation = useMutation({
     mutationFn: signIn,
+    onSuccess: (data) => {
+      message.success(data.message);
+      localStorage.setItem("auth-token", data.data.token);
+      setAuthUser(data.data.user);
+      navigate("/");
+    },
+    onError: (error: any) => {
+      message.error(
+        error?.response?.data?.message || "Invalid email or password"
+      );
+    },
   });
 
   const onFinish = (values: SigninType) => {
-    mutation.mutate(values, {
-      onSuccess: (data) => {
-        message.success(data.message);
-        console.log("token", data.data);
-        localStorage.setItem("auth-token", data.data.token);
-        setAuthUser(data.data.user);
-        navigate("/");
-      },
-      onError: () => {
-        message.error("Invalid email or password");
-      },
-    });
+    mutation.mutate(values);
   };
 
   return (
@@ -40,20 +40,21 @@ export default function SignIn() {
           label="Email"
           rules={[{ required: true, type: "email" }]}
         >
-          <Input />
+          <Input autoComplete="email" />
         </Form.Item>
         <Form.Item
           name="password"
           label="Password"
           rules={[{ required: true }]}
         >
-          <Input.Password />
+          <Input.Password autoComplete="current-password" />
         </Form.Item>
         <Form.Item>
           <Button
             type="primary"
             htmlType="submit"
             loading={mutation.isPending}
+            disabled={mutation.isPending}
             block
           >
             Sign In
