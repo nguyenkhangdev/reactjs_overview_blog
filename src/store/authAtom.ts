@@ -6,6 +6,11 @@ export const authUserState = atom<UserType | null>({
   default: null,
 });
 
+export const authLoadingState = atom<boolean>({
+  key: "authLoadingState",
+  default: true,
+});
+
 export const isAdminSelector = selector({
   key: "isAdmin",
   get: ({ get }) => {
